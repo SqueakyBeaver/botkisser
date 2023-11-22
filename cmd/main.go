@@ -8,7 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	"github.com/SqueakyBeaver/botkisser"
+	dbot "github.com/SqueakyBeaver/botkisser"
 	"github.com/SqueakyBeaver/botkisser/commands"
 )
 

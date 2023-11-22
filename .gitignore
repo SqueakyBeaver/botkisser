@@ -1,6 +1,6 @@
 .idea/
 config.json
 
-botkisser
+**/**.db
 .env
-
+build/

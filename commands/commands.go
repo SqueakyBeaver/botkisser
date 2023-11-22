@@ -3,7 +3,7 @@ package commands
 import (
 	"log"
 
-	"github.com/SqueakyBeaver/botkisser"
+	dbot "github.com/SqueakyBeaver/botkisser"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -26,14 +26,13 @@ import (
     }
 */
 var commands = []*discordgo.ApplicationCommand{
-	{
-		Name:        "ping",
-		Description: "pong .o.",
-	},
+	&PingCommand,
+	&TrumpPrideCommand,
 }
 
 var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-	"ping": PingCommand,
+	"ping":        PingCommandResponse,
+	"trump-pride": TrumpPrideResponse,
 }
 
 func SetupCommands(bot *dbot.Bot) {

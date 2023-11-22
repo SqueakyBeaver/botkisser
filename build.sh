@@ -1,1 +1,1 @@
-go build -o botkisser cmd/main.go && ./botkisser
+go build -o build/botkisser cmd/main.go && ./botkisser
