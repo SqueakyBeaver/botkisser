@@ -36,7 +36,29 @@ func TrumpPrideResponse(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Access options in the order provided by the user
 	options := i.ApplicationCommandData().Options
 
-	flagUrl := utils.GetPrideFlag(options[0].StringValue())
+	var ephemeral discordgo.MessageFlags
+
+	if len(options) > 1 && !options[1].BoolValue() {
+		ephemeral = discordgo.MessageFlagsEphemeral
+	} else {
+		ephemeral = 0
+	}
+
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Flags: ephemeral,
+		},
+	})
+
+	flagUrl, err := utils.GetPrideFlag(options[0].StringValue())
+	if err != nil {
+		s.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
+			Content: fmt.Sprintf("No flags found for %s", options[0].StringValue()),
+			Flags:   discordgo.MessageFlagsEphemeral,
+		})
+		return
+	}
 
 	flagDataBody, err := http.Get(flagUrl)
 	if err != nil {
@@ -91,18 +113,17 @@ func TrumpPrideResponse(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		fmt.Fprintln(os.Stderr, err)
 	}
 
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: "Pong owo",
-			Flags:   discordgo.MessageFlagsEphemeral,
-			Files: []*discordgo.File{
-				{
-					ContentType: "image",
-					Name:        fmt.Sprintf("Trump%s.png", options[0].StringValue()),
-					Reader:      sendFile,
-				},
+	s.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
+		Content: "Pong owo",
+		Flags:   ephemeral,
+		Files: []*discordgo.File{
+			{
+				ContentType: "image/png",
+				Name:        fmt.Sprintf("Trump%s.png", options[0].StringValue()),
+				Reader:      sendFile,
 			},
 		},
 	})
+	sendFile.Close()
+	os.Remove("trump-mug-tmp.png")
 }

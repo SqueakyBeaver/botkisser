@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func GetPrideFlag(name string) string {
+func GetPrideFlag(name string) (string, error) {
 	// Return link to flag file
 
 	// Get page name
@@ -24,7 +24,7 @@ func GetPrideFlag(name string) string {
 		flagUrl := fetchFlagUrl(pageTitle, "new")
 
 		if flagUrl != "" {
-			return flagUrl
+			return flagUrl, nil
 		}
 	}
 	// assume we need to fetch with the old api
@@ -32,8 +32,11 @@ func GetPrideFlag(name string) string {
 	pageTitle = fetchPageTitle(name, "old")
 
 	flagUrl := fetchFlagUrl(pageTitle, "old")
-
-	return flagUrl
+	if flagUrl != "" {
+		return flagUrl, nil
+	} else {
+		return "", fmt.Errorf("no results found for \"%s\"", name)
+	}
 }
 
 func fetchPageTitle(name string, version string) string {
@@ -77,6 +80,10 @@ func fetchPageTitle(name string, version string) string {
 }
 
 func fetchFlagUrl(pageTitle string, version string) string {
+	if pageTitle == "" {
+		return ""
+	}
+
 	var vstr string
 	var prefix string
 	if version == "new" {
